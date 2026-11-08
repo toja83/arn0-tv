@@ -9,13 +9,6 @@
         { key: 'dm-sans', label: 'DM Sans', family: '"DM Sans"' }
     ];
 
-    var LOCALES = [
-        { key: 'en-GB', label: 'English' },
-        { key: 'es-ES', label: 'Español' },
-        { key: 'fr-FR', label: 'Français' },
-        { key: 'sv-SE', label: 'Svenska' }
-    ];
-
     var FALLBACK = ', "SamsungOne", "Helvetica Neue", Arial, sans-serif';
 
     function prefs() { return Prefs.get().appearance; }
@@ -23,6 +16,8 @@
     function font(key) {
         return FONTS.find(function (f) { return f.key === key; }) || FONTS[0];
     }
+
+    function locale() { return prefs().language === 'sv' ? 'sv-SE' : 'en-GB'; }
 
     function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -37,7 +32,7 @@
 
     function date(d) {
         try {
-            var text = d.toLocaleDateString(prefs().locale, { weekday: 'long', day: 'numeric', month: 'long' });
+            var text = d.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' });
             return text.charAt(0).toUpperCase() + text.slice(1);
         } catch (e) {
             return d.toDateString();
@@ -55,8 +50,8 @@
 
     window.Appearance = {
         FONTS: FONTS,
-        LOCALES: LOCALES,
         font: font,
+        locale: locale,
         time: time,
         date: date,
         apply: apply

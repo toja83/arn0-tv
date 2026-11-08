@@ -13,5 +13,5 @@ window.LAUNCHER_LOCAL = {
     // Receives Lab logs; see scripts/devlog-server.mjs.
     // devLogUrl: null,
 
-    // locale: 'fr-FR',
+    // language: 'en',              // 'en' | 'sv'
 };

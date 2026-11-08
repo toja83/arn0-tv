@@ -40,7 +40,7 @@ are all real, while launching apps and switching HDMI inputs only do something o
 ## What you can change
 
 Everything in [`src/js/config.js`](src/js/config.js) is meant to be edited: which apps appear, which
-consoles and on which HDMI ports, how an input tile switches the TV, the locale, the starting
+consoles and on which HDMI ports, how an input tile switches the TV, the language, the starting
 wallpaper. Most of it is also editable from the launcher's own Settings once it is on the TV, and
 the TV's copy wins (`config.js` only supplies the defaults).
 
@@ -161,9 +161,8 @@ Saved on the TV in `localStorage`. They survive restarts and in-place updates, n
 - **Apps on Home** — OK on an app opens Move / Remove; OK on the right-hand slot adds one.
 - **Consoles** — per console: rename (on-screen keyboard), HDMI port, logo, how it opens, hide,
   reorder, remove; plus add a console.
-- **Appearance** — 24/12-hour clock, date shown/hidden, interface language
-  (English or Svenska), date language (English, Español, Français or Svenska), font,
-  app names (always / when selected / never).
+- **Appearance** — 24/12-hour clock, date shown/hidden, interface and date language
+  (English or Svenska), font, app names (always / when selected / never).
 - **Navigation sound** — turn arrow-key sounds on or off, choose Soft, Warm or Bright, and preview
   the selected tone.
 - **Screen saver** — on or off, start after 3/5/10/15 min idle on Home, photo change every

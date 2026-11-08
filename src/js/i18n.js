@@ -47,7 +47,6 @@
         '2 hours': '2 timmar',
         'Clock': 'Klocka',
         'Date': 'Datum',
-        'Date language': 'Datumsspråk',
         'Language': 'Språk',
         'Font': 'Teckensnitt',
         'App names': 'Appnamn',

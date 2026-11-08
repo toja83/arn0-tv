@@ -36,7 +36,6 @@ window.LAUNCHER_CONFIG = {
     inputMethod: 'switch+viewer',
 
     language: 'en',
-    locale: 'en-GB',
 
     theme: {
         // Starting wallpaper (key from js/wallpapers.js), or null for none (plain gradient).

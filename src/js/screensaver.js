@@ -189,7 +189,7 @@
     // The design asks for "Wed 21 Oct"; Appearance.date is the long form Home uses.
     function shortDate(d) {
         try {
-            var text = d.toLocaleDateString(Prefs.get().appearance.locale,
+            var text = d.toLocaleDateString(Appearance.locale(),
                 { weekday: 'short', day: 'numeric', month: 'short' });
             return text.charAt(0).toUpperCase() + text.slice(1);
         } catch (e) {

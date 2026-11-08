@@ -198,7 +198,6 @@
             { title: 'Clock', key: 'clock', options: [['24h', '24-hour'], ['12h', '12-hour']] },
             { title: 'Date', key: 'showDate', options: [[true, 'Show'], [false, 'Hide']] },
             { title: 'Language', key: 'language', options: [['en', 'English'], ['sv', 'Svenska']] },
-            { title: 'Date language', key: 'locale', options: Appearance.LOCALES.map(function (l) { return [l.key, l.label]; }) },
             { title: 'Font', key: 'font', options: Appearance.FONTS.map(function (f) { return [f.key, f.label, f.family]; }) },
             { title: 'App names', key: 'names', options: [['always', 'Always'], ['focused', 'When selected'], ['never', 'Never']] }
         ];

@@ -36,19 +36,11 @@
         return 'storm';
     }
 
-    // Translated for the same locales as the date, so the corner does not mix languages.
+    // Translated for the same languages as the date, so the corner does not mix languages.
     var LABELS = {
         'en-GB': {
             clear: 'Clear', cloudy: 'Cloudy', fog: 'Fog', drizzle: 'Drizzle',
             rain: 'Rain', showers: 'Showers', snow: 'Snow', storm: 'Thunderstorm'
-        },
-        'es-ES': {
-            clear: 'Despejado', cloudy: 'Nublado', fog: 'Niebla', drizzle: 'Llovizna',
-            rain: 'Lluvia', showers: 'Chubascos', snow: 'Nieve', storm: 'Tormenta'
-        },
-        'fr-FR': {
-            clear: 'Dégagé', cloudy: 'Nuageux', fog: 'Brouillard', drizzle: 'Bruine',
-            rain: 'Pluie', showers: 'Averses', snow: 'Neige', storm: 'Orage'
         },
         'sv-SE': {
             clear: 'Klart', cloudy: 'Molnigt', fog: 'Dimma', drizzle: 'Duggregn',
@@ -127,8 +119,7 @@
      */
     function current() {
         if (!configured() || !reading || age() > USABLE_MS) return null;
-        var locale = Prefs.get().appearance.locale;
-        var labels = LABELS[locale] || LABELS['en-GB'];
+        var labels = LABELS[Appearance.locale()];
         var name = group(reading.code);
         return {
             temp: Math.round(reading.temp) + '°',
