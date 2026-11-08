@@ -322,8 +322,6 @@
             if (view === 'all') {
                 state.showEverything = !state.showEverything;
                 UI.show('all', { back: true });
-            } else if (view === 'home' && window.RunnerGame) {
-                RunnerGame.open();
             } else return false;
         } else {
             return false;
@@ -360,29 +358,6 @@
     }
 
     var listeners = [];
-    /*
-     * Hidden game code: Left and Right alternating three times.
-     *
-     * Two properties matter on a remote. It is matched against the tail of the last few keys,
-     * not with a position counter, because a held key repeats and one extra press would
-     * otherwise reset progress so the code could never complete. And it alternates rather than
-     * repeating a key, because both auto-repeat and sweeping along a row produce runs of the
-     * same key — a code made of runs fires by accident during ordinary browsing.
-     */
-    var gameCode = [KEY.LEFT, KEY.RIGHT, KEY.LEFT, KEY.RIGHT, KEY.LEFT, KEY.RIGHT];
-    var recentKeys = [];
-
-    function gameCodeEntered(k) {
-        recentKeys.push(k);
-        if (recentKeys.length > gameCode.length) recentKeys.shift();
-        if (recentKeys.length < gameCode.length) return false;
-        for (var i = 0; i < gameCode.length; i++) {
-            if (recentKeys[i] !== gameCode[i]) return false;
-        }
-        recentKeys.length = 0;
-        return true;
-    }
-
     function setApps(apps) {
         var sig = apps.map(function (a) { return a.id + '|' + a.name + '|' + a.show; }).join(',');
         if (sig === state.appsSig) return;
@@ -458,11 +433,6 @@
         UI.setKeyHook(function (k) {
             if (state.tvMode) {
                 if (k === KEY.BACK || k === KEY.ESC || k === KEY.BACKSPACE) exitTvMode();
-                return true;
-            }
-            if (!UI.isVisible('home')) { recentKeys.length = 0; return false; }
-            if (gameCodeEntered(k)) {
-                if (window.RunnerGame) RunnerGame.open(true);
                 return true;
             }
             return false;

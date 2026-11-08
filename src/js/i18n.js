@@ -120,8 +120,6 @@
         'Sent {count} apps to the log': '{count} appar har skickats till loggen',
         'Could not open Samsung Home: {error}': 'Det gick inte att öppna Samsungs startsida: {error}',
         'Remove {name}?': 'Ta bort {name}?',
-        'Jump': 'Hoppa',
-        'Duck': 'Ducka',
         'Platform probe done — see the log': 'Plattformstestet är klart — se loggen',
         'No power API on this TV': 'Det finns inget ström-API på den här TV:n',
         'No turnScreenOff() on this TV': 'turnScreenOff() finns inte på den här TV:n',

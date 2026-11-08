@@ -113,10 +113,7 @@ node scripts/prepare-wallpapers.mjs <folder>   # regenerate wallpapers from your
 | Back | one level back (does nothing on Home) |
 
 Hidden shortcuts: Red = All apps, Green = next wallpaper, Yellow (in All apps) = show system apps,
-Blue = Lab. On Home, Left and Right alternating three times (◀ ▶ ◀ ▶ ◀ ▶) starts the hidden game;
-OK / Up jumps, Down ducks, Back returns Home. The code alternates rather than repeating a key
-because a held remote key auto-repeats, which would both break a run-based code and fire it by
-accident while sweeping along a row.
+Blue = Lab.
 
 ### Layout
 
@@ -185,7 +182,7 @@ Green.
 
 After a few minutes with no input on Home it shows the wallpapers full screen with the clock, the
 weather and the photo's name in the corners. Any button closes it, and that press does nothing else. It never
-appears over a console input, another screen or the hidden game.
+appears over a console input or another screen.
 
 The weather is off until you put coordinates in `config.local.js` (see **What you can change**). It comes from
 [Open-Meteo](https://open-meteo.com/), which needs no API key, and there is deliberately no
