@@ -101,7 +101,7 @@ Evidence and limits:
 npm run preview      # browser preview on :8080
 npm run build        # -> dist/arn0-launcher.wgt
 npm run devlog       # receive Lab logs from the TV into logs/tv.jsonl
-node scripts/prepare-wallpapers.mjs <folder>   # regenerate wallpapers from your photos
+node scripts/prepare-wallpapers.mjs <folder>   # choose Add, Replace, or Restore
 ```
 
 ### Remote
@@ -174,9 +174,35 @@ Saved on the TV in `localStorage`. They survive restarts and in-place updates, n
 
 Photos are cropped to 1920x1080 and darkened (top-left for the clock, bottom for the tiles) at
 build time, so the TV only ever draws one plain JPEG on its own layer. Drop photos in a folder and
-run `node scripts/prepare-wallpapers.mjs <folder>`; friendly names and crop positions for known
-files live in that script. Current photos are from Unsplash; credits appear when you switch with
-Green.
+run `node scripts/prepare-wallpapers.mjs <folder>` and choose:
+
+1. **Add** new photos while keeping existing wallpapers. Colliding keys receive a numeric suffix.
+2. **Replace** the collection with only the new photos, removing old assets and thumbnails.
+3. **Restore** only the ten original wallpapers, removing all custom assets and thumbnails.
+
+You can also run the script without arguments to choose a mode and enter a photo folder.
+For non-interactive use, specify the mode explicitly:
+
+```sh
+node scripts/prepare-wallpapers.mjs <folder> --mode add
+node scripts/prepare-wallpapers.mjs <folder> --mode replace
+node scripts/prepare-wallpapers.mjs --mode restore
+```
+
+Restore uses the bundled originals in `scripts/assets/original-wallpapers/` and needs no
+network access or image tools. Add/Replace need macOS `sips` and Google Chrome installed
+at its default location. They render the entire batch before changing existing files;
+an empty source folder or rendering failure leaves the collection unchanged. Replace/Restore
+remove files only inside `src/img/wallpapers/`; source photos and the bundled originals are
+never removed. Existing saved wallpaper choices fall back to the first available photo if
+their old key is no longer present.
+
+Friendly names and crop positions for known files live in the script. Original photos are from
+Unsplash; credits appear when you switch with Green. Custom files receive an Unsplash credit
+only if their filenames match the Unsplash naming convention.
+
+Run the wallpaper workflow test with `node --test scripts/prepare-wallpapers.test.mjs`.
+It uses temporary folders, leaving the current collection untouched.
 
 ### Screen saver
 
