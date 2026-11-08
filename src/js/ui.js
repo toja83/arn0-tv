@@ -69,9 +69,14 @@
             return;
         }
         list.forEach(function (h) {
-            var group = el('div', 'hint');
+            var group = el('div', 'hint' + (h[2] && h[2].focusable ? ' hint-language' : ''));
             group.appendChild(el('span', 'hint-key', h[0]));
             group.appendChild(el('span', 'hint-label', I18n.t(h[1])));
+            if (h[2] && h[2].focusable) {
+                group._item = h[2].item;
+                group.setAttribute('role', 'button');
+                group.setAttribute('aria-label', I18n.t(h[1]) + ': ' + h[0]);
+            }
             bar.appendChild(group);
         });
         bar.classList.remove('hidden');

@@ -60,7 +60,7 @@
         return rows;
     }
 
-    function registerList(name, entries, hints, twoColumn) {
+    function registerList(name, entries, hints, twoColumn, onKey, extraRows) {
         var view = $(name);
         var list = view.querySelector('ul');
         var render = function () {
@@ -75,9 +75,11 @@
             el: view,
             rows: function () {
                 var items = UI.children(list);
-                return twoColumn ? columnRows(items) : items.map(function (li) { return [li]; });
+                var rows = twoColumn ? columnRows(items) : items.map(function (li) { return [li]; });
+                return extraRows ? rows.concat(extraRows()) : rows;
             },
             onShow: render,
+            onKey: onKey,
             activate: function (item) { item.run(); },
             hints: hints
         });
@@ -227,13 +229,28 @@
         Appearance.apply();
         Home.updateClock();
         if (item.key === 'language') {
-            I18n.applyStatic();
-            Home.refreshLanguage();
+            applyLanguage();
             UI.show('appearance', { back: true });
             return;
         }
         renderAppearance();
         UI.refresh();
+    }
+
+    function applyLanguage() {
+        I18n.applyStatic();
+        Home.refreshLanguage();
+    }
+
+    function toggleLanguage() {
+        var appearance = Prefs.get().appearance;
+        appearance.language = appearance.language === 'sv' ? 'en' : 'sv';
+        Prefs.save();
+        Appearance.apply();
+        Home.updateClock();
+        applyLanguage();
+        UI.show('settings', { back: true });
+        return true;
     }
 
     // ---------- Navigation sound
@@ -673,7 +690,21 @@
 
     function init() {
         registerList('settings', overviewEntries,
-            [['OK', 'Change'], ['◀ ▶', 'Switch column'], ['Back', 'Home']], true);
+            function () {
+                return [
+                    ['OK', 'Change'],
+                    ['◀ ▶', 'Switch column'],
+                    ['Back', 'Home'],
+                    [Prefs.get().appearance.language.toUpperCase(), 'Language', {
+                        focusable: true,
+                        item: { run: toggleLanguage }
+                    }]
+                ];
+            },
+            true, null, function () {
+                var control = $('hints').querySelector('.hint-language');
+                return control ? [[control]] : [];
+            });
         registerList('advanced', advancedEntries, [['OK', 'Run'], ['Back', 'Settings']]);
         renderConsoles = registerList('consoles', consoleEntries,
             [['OK', 'Options'], ['Back', 'Settings']]);

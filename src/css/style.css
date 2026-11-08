@@ -829,6 +829,28 @@ html.preview, html.preview body {
     font-weight: 600;
 }
 
+.hint-language {
+    margin-left: auto;
+    padding: 4px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--fg);
+}
+
+.hint-language .hint-key {
+    border-color: transparent;
+    color: var(--muted);
+}
+
+.hint-language.focused {
+    background: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 0 0 2px var(--ring);
+}
+
+.hint-language.focused .hint-key {
+    color: var(--fg);
+}
+
 /*
  * Render probe stage (Lab only). Deliberately breaks the performance rules above: that is the
  * point — these styles exist to measure what breaking them costs on this TV.
