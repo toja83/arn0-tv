@@ -58,7 +58,7 @@ the packaged `.wgt`. Nothing to strip before a push, nothing to restore before a
 This project was largely built with coding agents, and adapting it is a reasonable thing to hand to
 one. A starting prompt that keeps the agent on the safe side of the line:
 
-```
+```text
 This is a Tizen TV launcher (see README.md). Work in the browser preview only.
 
 Do: edit src/js/config.js, src/js/brands.js and src/css/style.css; run `npm run preview`
@@ -117,7 +117,7 @@ Blue = Lab.
 
 ### Layout
 
-```
+```text
 src/                  everything that goes into the .wgt
   config.xml          Tizen manifest (app id, privileges)
   css/style.css       1920x1080 stage; performance rules measured, not assumed (see its header)
