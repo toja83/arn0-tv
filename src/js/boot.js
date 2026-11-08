@@ -12,6 +12,7 @@
     fitPreview();
     window.addEventListener('resize', fitPreview);
 
+    I18n.applyStatic();
     UI.init();
     Settings.init();
     Screensaver.init();

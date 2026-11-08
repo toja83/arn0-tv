@@ -71,7 +71,7 @@
         list.forEach(function (h) {
             var group = el('div', 'hint');
             group.appendChild(el('span', 'hint-key', h[0]));
-            group.appendChild(el('span', 'hint-label', h[1]));
+            group.appendChild(el('span', 'hint-label', I18n.t(h[1])));
             bar.appendChild(group);
         });
         bar.classList.remove('hidden');
@@ -239,7 +239,7 @@
 
     var toastTimer = null;
     function toast(msg) {
-        $('toast').textContent = msg;
+        $('toast').textContent = I18n.t(msg);
         $('toast').classList.add('visible');
         clearTimeout(toastTimer);
         toastTimer = setTimeout(function () { $('toast').classList.remove('visible'); }, 3500);
@@ -247,11 +247,11 @@
 
     // Small pop-up list over the current view. options: [{ label, run, checked }]
     function menu(title, options) {
-        $('menu-title').textContent = title;
+        $('menu-title').textContent = I18n.t(title);
         var list = $('menu-list');
         list.innerHTML = '';
         options.forEach(function (o) {
-            var li = el('li', o.checked ? 'checked' : '', o.label);
+            var li = el('li', o.checked ? 'checked' : '', I18n.t(o.label));
             li._item = o;
             list.appendChild(li);
         });

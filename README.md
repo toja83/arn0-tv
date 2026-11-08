@@ -129,6 +129,7 @@ src/                  everything that goes into the .wgt
   img/tiles/          marks recoloured per brand (generated at build)
   img/wallpapers/     1920x1080 wallpapers with the readability scrim baked in (generated)
   js/config.js        your apps, consoles, HDMI method, locale, theme
+  js/i18n.js          interface translations (English and Swedish)
   js/config.local.js  gitignored per-TV overrides, merged over config.js (not in the repo)
   js/brands.js        tile colours and marks per brand
   js/apps.js          list / filter / launch via tizen.application
@@ -160,8 +161,9 @@ Saved on the TV in `localStorage`. They survive restarts and in-place updates, n
 - **Apps on Home** — OK on an app opens Move / Remove; OK on the right-hand slot adds one.
 - **Consoles** — per console: rename (on-screen keyboard), HDMI port, logo, how it opens, hide,
   reorder, remove; plus add a console.
-- **Appearance** — 24/12-hour clock, date shown/hidden, date language (English, Español, Français),
-  font, app names (always / when selected / never).
+- **Appearance** — 24/12-hour clock, date shown/hidden, interface language
+  (English or Svenska), date language (English, Español, Français or Svenska), font,
+  app names (always / when selected / never).
 - **Navigation sound** — turn arrow-key sounds on or off, choose Soft, Warm or Bright, and preview
   the selected tone.
 - **Screen saver** — on or off, start after 3/5/10/15 min idle on Home, photo change every

@@ -3,6 +3,7 @@
  * `mark` is a file in img/marks/; the build recolours it in `fg` (img/tiles/<key>.svg), shown over `bg`.
  * `text` instead of `mark` draws a typographic logo (for brands without an available mark).
  * `pad` optionally overrides the mark's [vertical, horizontal] inset in % of the tile (default [26, 22]).
+ * Brand marks and names stay language-neutral; interface translations live in js/i18n.js.
  */
 window.BRANDS = [
     { key: 'youtube', match: /youtube|tizentube|cobalt-yt/i, mark: 'youtube', bg: '#e62117', fg: '#fff' },

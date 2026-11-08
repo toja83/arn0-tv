@@ -49,6 +49,10 @@
         'fr-FR': {
             clear: 'Dégagé', cloudy: 'Nuageux', fog: 'Brouillard', drizzle: 'Bruine',
             rain: 'Pluie', showers: 'Averses', snow: 'Neige', storm: 'Orage'
+        },
+        'sv-SE': {
+            clear: 'Klart', cloudy: 'Molnigt', fog: 'Dimma', drizzle: 'Duggregn',
+            rain: 'Regn', showers: 'Skurar', snow: 'Snö', storm: 'Åska'
         }
     };
 

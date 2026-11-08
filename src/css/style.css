@@ -478,11 +478,16 @@ h1, h2 {
 }
 
 .compact .setting-block {
-    margin-bottom: 30px;
+    margin-bottom: 18px;
 }
 
 .compact .setting-block h2 {
-    margin-bottom: 14px;
+    margin-bottom: 10px;
+}
+
+.compact .chip {
+    padding: 12px 24px;
+    font-size: 26px;
 }
 
 .setting-block h2,

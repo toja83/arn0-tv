@@ -35,6 +35,7 @@ window.LAUNCHER_CONFIG = {
     //   'inapp'          show the input full screen inside the launcher (Back returns)
     inputMethod: 'switch+viewer',
 
+    language: 'en',
     locale: 'en-GB',
 
     theme: {

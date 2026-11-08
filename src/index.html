@@ -22,69 +22,69 @@
                 </svg>
             </div>
             <div id="apps-section" class="shelf">
-                <h2>Apps</h2>
+                <h2 data-i18n="Apps">Apps</h2>
                 <div class="row-viewport"><div id="apps-row" class="row-track"></div></div>
             </div>
             <div id="inputs-section" class="shelf">
-                <h2>Consoles</h2>
+                <h2 data-i18n="Consoles">Consoles</h2>
                 <div class="row-viewport"><div id="inputs-row" class="row-track"></div></div>
             </div>
         </section>
 
         <section id="all" class="view page hidden">
             <header class="page-head">
-                <h1>All apps</h1>
+                <h1 data-i18n="All apps">All apps</h1>
                 <div id="all-count"></div>
             </header>
             <div class="grid-viewport"><div id="all-grid" class="grid"></div></div>
         </section>
 
         <section id="settings" class="view page hidden">
-            <header class="page-head"><h1>Settings</h1></header>
+            <header class="page-head"><h1 data-i18n="Settings">Settings</h1></header>
             <ul class="settings-list two-col"></ul>
         </section>
 
         <section id="bg-settings" class="view page hidden">
-            <header class="page-head"><h1>Background</h1></header>
+            <header class="page-head"><h1 data-i18n="Background">Background</h1></header>
             <div id="bg-body" class="settings-body">
                 <div class="setting-block">
-                    <h2>Wallpaper</h2>
+                    <h2 data-i18n="Wallpaper">Wallpaper</h2>
                     <div id="bg-mode" class="chips"></div>
                 </div>
                 <div id="bg-interval-block" class="setting-block">
-                    <h2>Change every</h2>
+                    <h2 data-i18n="Change every">Change every</h2>
                     <div id="bg-interval" class="chips"></div>
                 </div>
                 <div id="bg-photos-block" class="setting-block">
-                    <h2>Photo</h2>
+                    <h2 data-i18n="Photo">Photo</h2>
                     <div id="bg-photos" class="thumbs"></div>
                 </div>
             </div>
         </section>
 
         <section id="consoles" class="view page hidden">
-            <header class="page-head"><h1>Consoles</h1></header>
+            <header class="page-head"><h1 data-i18n="Consoles">Consoles</h1></header>
             <ul class="settings-list"></ul>
         </section>
 
         <section id="appearance" class="view page hidden">
-            <header class="page-head"><h1>Appearance</h1></header>
+            <header class="page-head"><h1 data-i18n="Appearance">Appearance</h1></header>
             <div id="appearance-body" class="settings-body compact"></div>
         </section>
 
         <section id="sound-settings" class="view page hidden">
-            <header class="page-head"><h1>Navigation sound</h1></header>
+            <header class="page-head"><h1 data-i18n="Navigation sound">Navigation sound</h1></header>
             <div id="sound-body" class="settings-body compact"></div>
         </section>
 
         <section id="advanced" class="view page hidden">
-            <header class="page-head"><h1>Advanced</h1></header>
+            <header class="page-head"><h1 data-i18n="Advanced">Advanced</h1></header>
             <ul class="settings-list"></ul>
         </section>
 
         <section id="homeapps" class="view page hidden">
             <header class="page-head">
-                <h1>Apps on Home</h1>
+                <h1 data-i18n="Apps on Home">Apps on Home</h1>
             </header>
             <div class="ed-col ed-left">
                 <h2 id="ed-home-title"></h2>
@@ -98,15 +98,15 @@
 
         <section id="lab" class="view page hidden">
             <header class="page-head">
-                <h1>Lab</h1>
-                <div>Tests for the TV. Results go to the log (and to the Mac if devLogUrl is set).</div>
+                <h1 data-i18n="Lab">Lab</h1>
+                <div data-i18n="Tests for the TV. Results go to the log (and to the Mac if devLogUrl is set).">Tests for the TV. Results go to the log (and to the Mac if devLogUrl is set).</div>
             </header>
             <ul id="lab-list" class="lab-list"></ul>
             <pre id="lab-log" class="lab-log"></pre>
         </section>
 
         <section id="screensaver-settings" class="view page hidden">
-            <header class="page-head"><h1>Screen saver</h1></header>
+            <header class="page-head"><h1 data-i18n="Screen saver">Screen saver</h1></header>
             <div id="screensaver-body" class="settings-body compact"></div>
         </section>
 
@@ -140,7 +140,7 @@
 
         <div id="rename" class="view overlay hidden">
             <div class="menu-box">
-                <div class="dialog-title">Name</div>
+                <div class="dialog-title" data-i18n="Name">Name</div>
                 <input id="rename-input" type="text" maxlength="28" autocomplete="off" spellcheck="false">
             </div>
         </div>
@@ -163,6 +163,7 @@
     <!-- Gitignored per-TV overrides, merged by config.js below. Empty unless you create it. -->
     <script src="js/config.local.js"></script>
     <script src="js/config.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/brands.js"></script>
     <script src="js/wallpapers.js"></script>
     <script src="js/devlog.js"></script>

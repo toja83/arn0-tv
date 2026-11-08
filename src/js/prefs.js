@@ -31,6 +31,7 @@
             appearance: {
                 clock: '24h',           // '24h' | '12h'
                 showDate: true,
+                language: cfg.language || 'en',
                 locale: cfg.locale || 'en-GB',
                 font: 'manrope',        // see Appearance.FONTS
                 names: 'always'         // app names under tiles: 'always' | 'focused' | 'never'

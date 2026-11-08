@@ -6,6 +6,7 @@
     var el = UI.el;
     var KEY = UI.KEY;
     var THUMB_COLS = 6;
+    var t = I18n.t;
 
     // Samsung's on-screen keyboard (IME) sends these for its Done / Cancel buttons.
     var IME_DONE = 65376;
@@ -36,8 +37,8 @@
         entries.forEach(function (e) {
             var li = el('li', 'setting-row');
             if (e.mini) li.appendChild(e.mini);
-            li.appendChild(el('span', 'setting-label', e.label));
-            li.appendChild(el('span', 'setting-value', e.value || ''));
+            li.appendChild(el('span', 'setting-label', t(e.label)));
+            li.appendChild(el('span', 'setting-value', t(e.value || '')));
             li._item = e;
             list.appendChild(li);
         });
@@ -90,7 +91,9 @@
         DevLog.log('Open Samsung Home');
         Apps.launch(SAMSUNG_HOME).catch(function (err) {
             DevLog.log('Samsung Home failed: ' + DevLog.errorText(err));
-            UI.toast('Could not open Samsung Home: ' + DevLog.errorText(err));
+            UI.toast(I18n.format('Could not open Samsung Home: {error}', {
+                error: DevLog.errorText(err)
+            }));
         }).then(function () { opening = false; });
     }
 
@@ -98,10 +101,10 @@
 
     function wallpaperSummary() {
         var p = Prefs.get().wallpaper;
-        if (p.mode === 'off') return 'Off';
-        if (p.mode === 'rotate') return 'Rotate · ' + Wallpaper.interval(p.interval).label.toLowerCase();
+        if (p.mode === 'off') return t('Off');
+        if (p.mode === 'rotate') return t('Rotate') + ' · ' + t(Wallpaper.interval(p.interval).label).toLowerCase();
         var w = Wallpaper.find(p.photo);
-        return w ? w.title : 'Photo';
+        return w ? w.title : t('Photo');
     }
 
     function overviewEntries() {
@@ -109,9 +112,9 @@
         var shown = Home.inputs().filter(function (i) { return !i.hidden; }).length;
         return [
             { label: 'Background', value: wallpaperSummary(), run: function () { UI.show('bg'); } },
-            { label: 'Apps on Home', value: Home.homeItems().length + ' apps', run: function () { UI.show('homeapps'); } },
-            { label: 'Consoles', value: shown + ' on Home', run: function () { UI.show('consoles'); } },
-            { label: 'Appearance', value: Appearance.font(a.font).label + ' · ' + (a.clock === '12h' ? '12-hour' : '24-hour'), run: function () { UI.show('appearance'); } },
+            { label: 'Apps on Home', value: I18n.countApps(Home.homeItems().length), run: function () { UI.show('homeapps'); } },
+            { label: 'Consoles', value: I18n.countHome(shown), run: function () { UI.show('consoles'); } },
+            { label: 'Appearance', value: Appearance.font(a.font).label + ' · ' + t(a.clock === '12h' ? '12-hour' : '24-hour'), run: function () { UI.show('appearance'); } },
             { label: 'Navigation sound', value: soundSummary(), run: function () { UI.show('sound-settings'); } },
             { label: 'Screen saver', value: screensaverSummary(), run: function () { UI.show('screensaver-settings'); } },
             { label: 'Samsung Home', value: 'Smart Hub and TV settings', run: openSamsungHome },
@@ -122,7 +125,7 @@
     // ---------- Chips (Background, Appearance)
 
     function chip(label, on, item) {
-        var c = el('div', 'chip' + (on ? ' on' : ''), label);
+        var c = el('div', 'chip' + (on ? ' on' : ''), t(label));
         c._item = item;
         return c;
     }
@@ -160,13 +163,13 @@
         var photos = $('bg-photos');
         photos.innerHTML = '';
         Wallpaper.list().forEach(function (w) {
-            var t = el('div', 'thumb' + (p.photo === w.key ? ' on' : ''));
+            var thumb = el('div', 'thumb' + (p.photo === w.key ? ' on' : ''));
             var img = new Image();
             img.src = w.thumb;
-            t.appendChild(img);
-            t.appendChild(el('div', 'thumb-title', w.title));
-            t._item = { kind: 'photo', key: w.key };
-            photos.appendChild(t);
+            thumb.appendChild(img);
+            thumb.appendChild(el('div', 'thumb-title', t(w.title)));
+            thumb._item = { kind: 'photo', key: w.key };
+            photos.appendChild(thumb);
         });
         $('bg-photos-block').classList.toggle('hidden', p.mode !== 'photo');
     }
@@ -194,6 +197,7 @@
         return [
             { title: 'Clock', key: 'clock', options: [['24h', '24-hour'], ['12h', '12-hour']] },
             { title: 'Date', key: 'showDate', options: [[true, 'Show'], [false, 'Hide']] },
+            { title: 'Language', key: 'language', options: [['en', 'English'], ['sv', 'Svenska']] },
             { title: 'Date language', key: 'locale', options: Appearance.LOCALES.map(function (l) { return [l.key, l.label]; }) },
             { title: 'Font', key: 'font', options: Appearance.FONTS.map(function (f) { return [f.key, f.label, f.family]; }) },
             { title: 'App names', key: 'names', options: [['always', 'Always'], ['focused', 'When selected'], ['never', 'Never']] }
@@ -206,7 +210,7 @@
         body.innerHTML = '';
         appearanceBlocks().forEach(function (b) {
             var block = el('div', 'setting-block');
-            block.appendChild(el('h2', '', b.title));
+            block.appendChild(el('h2', '', t(b.title)));
             var chips = el('div', 'chips');
             b.options.forEach(function (o) {
                 var c = chip(o[1], p[b.key] === o[0], { key: b.key, value: o[0] });
@@ -223,6 +227,12 @@
         Prefs.save();
         Appearance.apply();
         Home.updateClock();
+        if (item.key === 'language') {
+            I18n.applyStatic();
+            Home.refreshLanguage();
+            UI.show('appearance', { back: true });
+            return;
+        }
         renderAppearance();
         UI.refresh();
     }
@@ -231,7 +241,7 @@
 
     function soundSummary() {
         var p = Prefs.get().sound;
-        return p.enabled ? 'On · ' + Sound.presetLabel() : 'Off';
+        return p.enabled ? t('On') + ' · ' + t(Sound.presetLabel()) : t('Off');
     }
 
     function renderSound() {
@@ -240,7 +250,7 @@
         body.innerHTML = '';
 
         var enabledBlock = el('div', 'setting-block');
-        enabledBlock.appendChild(el('h2', '', 'Sound'));
+        enabledBlock.appendChild(el('h2', '', t('Sound')));
         var enabledChips = el('div', 'chips');
         enabledChips.appendChild(chip('On', p.enabled, { kind: 'enabled', value: true }));
         enabledChips.appendChild(chip('Off', !p.enabled, { kind: 'enabled', value: false }));
@@ -248,7 +258,7 @@
         body.appendChild(enabledBlock);
 
         var presetBlock = el('div', 'setting-block');
-        presetBlock.appendChild(el('h2', '', 'Style'));
+        presetBlock.appendChild(el('h2', '', t('Style')));
         var presetChips = el('div', 'chips');
         Sound.presetOptions().forEach(function (preset) {
             presetChips.appendChild(chip(preset.label, p.preset === preset.key,
@@ -258,7 +268,7 @@
         body.appendChild(presetBlock);
 
         var previewBlock = el('div', 'setting-block');
-        previewBlock.appendChild(el('h2', '', 'Try it'));
+        previewBlock.appendChild(el('h2', '', t('Try it')));
         var previewChips = el('div', 'chips');
         previewChips.appendChild(chip('Preview selected sound', false, { kind: 'preview' }));
         previewBlock.appendChild(previewChips);
@@ -290,7 +300,7 @@
 
     function screensaverSummary() {
         var p = Prefs.get().screensaver;
-        return p.enabled ? 'After ' + Screensaver.delay().label : 'Off';
+        return p.enabled ? I18n.after(t(Screensaver.delay().label)) : t('Off');
     }
 
     /*
@@ -319,7 +329,7 @@
         body.innerHTML = '';
         screensaverBlocks().forEach(function (b) {
             var block = el('div', 'setting-block');
-            block.appendChild(el('h2', '', b.title));
+            block.appendChild(el('h2', '', t(b.title)));
             var chips = el('div', 'chips');
             b.options.forEach(function (o) {
                 chips.appendChild(chip(o[1], p[b.key] === o[0], { key: b.key, value: o[0] }));
@@ -329,7 +339,7 @@
         });
 
         var tryBlock = el('div', 'setting-block');
-        tryBlock.appendChild(el('h2', '', 'Try it'));
+        tryBlock.appendChild(el('h2', '', t('Try it')));
         var tryChips = el('div', 'chips');
         tryChips.appendChild(chip('Show it now', false, { kind: 'preview' }));
         tryBlock.appendChild(tryChips);
@@ -375,8 +385,8 @@
         var other = $('ed-other');
         other.innerHTML = '';
         ed.others.forEach(function (item) { other.appendChild(edRow(item, false)); });
-        $('ed-home-title').textContent = 'On Home · ' + ed.items.length;
-        $('ed-other-title').textContent = 'Add apps · ' + ed.others.length;
+        $('ed-home-title').textContent = t('On Home') + ' · ' + ed.items.length;
+        $('ed-other-title').textContent = t('Add apps') + ' · ' + ed.others.length;
         if (!ed.others.length) ed.col = 0;
     }
 
@@ -447,7 +457,7 @@
                 ed.items.push(added);
                 edSave();
                 edRender();
-                UI.toast('Added ' + added.label + ' to Home');
+                UI.toast(I18n.format('Added {name} to Home', { name: added.label }));
             }
             edRefresh();
             return true;
@@ -511,7 +521,7 @@
         var entries = Home.inputs().map(function (input, i) {
             return {
                 label: input.label,
-                value: input.hidden ? 'Hidden' : 'HDMI ' + input.hdmi + ' · ' + methodOf(input).label,
+                value: input.hidden ? t('Hidden') : 'HDMI ' + input.hdmi + ' · ' + t(methodOf(input).label),
                 mini: Home.miniInputTile(input),
                 run: function () { consoleMenu(i); }
             };
@@ -542,7 +552,7 @@
                 label: 'HDMI port · HDMI ' + c.hdmi, run: function () {
                     UI.menu('HDMI port', [1, 2, 3, 4].map(function (n) {
                         return {
-                            label: 'HDMI ' + n + (status[n] ? ' · connected' : ''),
+                            label: 'HDMI ' + n + (status[n] ? ' · ' + t('Connected') : ''),
                             checked: n === c.hdmi,
                             run: function () { editInputs(function (l) { l[i].hdmi = n; }); }
                         };
@@ -550,7 +560,7 @@
                 }
             },
             {
-                label: 'Logo · ' + logoOf(c).label, run: function () {
+                label: t('Logo') + ' · ' + logoOf(c).label, run: function () {
                     UI.menu('Logo', LOGOS.map(function (logo) {
                         return {
                             label: logo.label,
@@ -561,10 +571,10 @@
                 }
             },
             {
-                label: 'Opens · ' + methodOf(c).label, run: function () {
+                label: t('Opens') + ' · ' + t(methodOf(c).label), run: function () {
                     UI.menu('Opens', METHODS.map(function (m) {
                         return {
-                            label: m.label + ' · ' + m.hint,
+                            label: t(m.label) + ' · ' + t(m.hint),
                             checked: m.key === methodOf(c).key,
                             run: function () { editInputs(function (l) { l[i].method = m.key; }); }
                         };
@@ -584,7 +594,7 @@
         }
         options.push({
             label: 'Remove', run: function () {
-                UI.menu('Remove ' + c.label + '?', [
+                UI.menu(I18n.format('Remove {name}?', { name: c.label }), [
                     { label: 'Remove', run: function () { editInputs(function (l) { l.splice(i, 1); }); } },
                     { label: 'Cancel' }
                 ]);
@@ -598,9 +608,10 @@
         var used = {};
         Home.inputs().forEach(function (i) { used[i.hdmi] = true; });
         var port = [1, 2, 3, 4].find(function (n) { return !used[n]; }) || 1;
-        editInputs(function (l) { l.push({ hdmi: port, label: 'Console', brand: '' }); });
+        var label = t('Console');
+        editInputs(function (l) { l.push({ hdmi: port, label: label, brand: '' }); });
         var index = Home.inputs().length - 1;
-        rename('Console', function (name) { editInputs(function (l) { l[index].label = name; }); });
+        rename(label, function (name) { editInputs(function (l) { l[index].label = name; }); });
     }
 
     // ---------- Rename dialog (uses Samsung's on-screen keyboard)

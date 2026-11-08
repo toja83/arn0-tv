@@ -11,6 +11,7 @@
     var $ = UI.$;
     var el = UI.el;
     var KEY = UI.KEY;
+    var t = I18n.t;
 
     var state = {
         apps: [],              // launchable apps from the TV (or the cache)
@@ -18,7 +19,8 @@
         lastFetch: 0,
         showEverything: false, // All apps: bypass the consumer filter
         tvMode: false,         // HDMI shown inside the launcher
-        hdmi: {}               // last known { port: connected }
+        hdmi: {},              // last known { port: connected }
+        labLogListening: false
     };
 
     // ---------- Tiles
@@ -101,7 +103,7 @@
             '<rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/>' +
             '<rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg>';
         wrap.appendChild(tile);
-        wrap.appendChild(el('div', 'label', 'All apps'));
+        wrap.appendChild(el('div', 'label', t('All apps')));
         wrap._item = { kind: 'all' };
         return wrap;
     }
@@ -204,7 +206,7 @@
         UI.resetScroll(grid);
         var items = Apps.allSorted(state.apps, state.showEverything);
         items.forEach(function (item) { grid.appendChild(appTile(item)); });
-        $('all-count').textContent = items.length + ' apps';
+        $('all-count').textContent = I18n.countApps(items.length);
     }
 
     function renderLab() {
@@ -227,13 +229,16 @@
         var list = $('lab-list');
         list.innerHTML = '';
         actions.forEach(function (a) {
-            var li = el('li', '', a.label);
+            var li = el('li', '', t(a.label));
             li._item = { kind: 'lab', run: a.run };
             list.appendChild(li);
         });
-        DevLog.onLine(function () {
-            $('lab-log').textContent = DevLog.lines().slice(-26).join('\n');
-        });
+        if (!state.labLogListening) {
+            state.labLogListening = true;
+            DevLog.onLine(function () {
+                $('lab-log').textContent = DevLog.lines().slice(-26).join('\n');
+            });
+        }
     }
 
     // ---------- Actions
@@ -251,18 +256,24 @@
 
     function launchApp(item) {
         runLogged('Launch ' + item.id, Apps.launch(item.id)).catch(function (err) {
-            UI.toast('Could not open ' + item.label + ': ' + DevLog.errorText(err));
+            UI.toast(I18n.format('Could not open {name}: {error}', {
+                name: item.label,
+                error: DevLog.errorText(err)
+            }));
         });
     }
 
     function openInput(item, method) {
         method = method || item.method || cfg.inputMethod;
-        UI.toast('Switching to ' + item.label + '…');
+        UI.toast(I18n.format('Switching to {name}…', { name: item.label }));
         runLogged('Input HDMI ' + item.hdmi + ' via ' + method, Inputs.open(item.hdmi, method)).then(function (result) {
             log('Current source now: ' + Inputs.describeSource(Inputs.current()));
             if (result === 'inapp') enterTvMode();
         }).catch(function (err) {
-            UI.toast('Could not switch to ' + item.label + ': ' + DevLog.errorText(err));
+            UI.toast(I18n.format('Could not switch to {name}: {error}', {
+                name: item.label,
+                error: DevLog.errorText(err)
+            }));
         });
     }
 
@@ -281,7 +292,7 @@
         runLogged('App list', Apps.getInstalledApps()).then(function (apps) {
             log('apps: ' + apps.length + ' total, ' + apps.filter(function (a) { return a.show; }).length + ' with show=true',
                 apps.map(Apps.describe));
-            UI.toast('Sent ' + apps.length + ' apps to the log');
+            UI.toast(I18n.format('Sent {count} apps to the log', { count: apps.length }));
         }).catch(function () {});
     }
 
@@ -296,7 +307,7 @@
 
     function nextWallpaper() {
         var w = Wallpaper.next();
-        if (w) UI.toast(w.title + (w.credit ? ' · ' + w.credit : ''));
+        if (w) UI.toast(t(w.title) + (w.credit ? ' · ' + w.credit : ''));
     }
 
     // Colour keys are hidden shortcuts; everything is also reachable from Settings.
@@ -391,7 +402,7 @@
             writeCache(list);
             setApps(list);
         }).catch(function (err) {
-            UI.toast('Could not list apps: ' + DevLog.errorText(err));
+            UI.toast(I18n.format('Could not list apps: {error}', { error: DevLog.errorText(err) }));
             log('App list failed: ' + DevLog.errorText(err));
         });
     }
@@ -434,6 +445,7 @@
         UI.register('lab', {
             el: $('lab'),
             rows: function () { return UI.children($('lab-list')).map(function (li) { return [li]; }); },
+            onShow: renderLab,
             activate: function (item) { item.run(); },
             hints: [['OK', 'Run'], ['Back', 'Home']]
         });
@@ -493,6 +505,10 @@
         tvMode: function () { return state.tvMode; },
         refreshInputStatus: refreshInputStatus,
         renderLab: renderLab,
+        refreshLanguage: function () {
+            renderHome();
+            renderLab();
+        },
         updateClock: updateClock,
         reloadApps: loadApps,
         miniTile: miniTile,
