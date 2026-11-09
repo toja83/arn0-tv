@@ -8,10 +8,14 @@ cd "$(dirname "$0")/.."
 # reason to ship one. Gitignored, so creating it here cannot dirty the tree.
 [ -f src/js/config.local.js ] || echo '/* No local overrides. See config.local.example.js. */' > src/js/config.local.js
 node scripts/build-marks.mjs
+stage=$(mktemp -d)
+trap 'rm -rf "$stage"' EXIT HUP INT TERM
+node scripts/personal-wallpapers.mjs "$stage"
 
 mkdir -p dist
 rm -f dist/arn0-launcher.wgt
-(cd src && zip -q -r -X ../dist/arn0-launcher.wgt . -x '*.DS_Store' -x '.*' -x 'img/marks/*')
+archive="$PWD/dist/arn0-launcher.wgt"
+(cd "$stage" && zip -q -r -X "$archive" . -x '*.DS_Store' -x '.*' -x 'img/marks/*')
 
 echo "Built dist/arn0-launcher.wgt"
 unzip -l dist/arn0-launcher.wgt

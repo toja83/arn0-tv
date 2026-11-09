@@ -1,8 +1,9 @@
 # Original wallpapers
 
 This directory preserves the ten rendered JPEGs and their thumbnails shipped with
-the launcher. `prepare-wallpapers.mjs --mode restore` copies them back without
-network access, Chrome, or `sips`. Add/replace never modify this directory.
+the launcher as a reference backup. The originals in `src/img/wallpapers/` now
+remain untouched by all preparation modes; Restore clears only the private
+personalization directory. No mode modifies this backup.
 
 These images already include the readability scrim; do not use them as source
 photos for generation. Names and photographer credits are defined in `KNOWN` in

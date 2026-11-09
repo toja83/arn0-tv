@@ -176,9 +176,10 @@ Photos are cropped to 1920x1080 and darkened (top-left for the clock, bottom for
 build time, so the TV only ever draws one plain JPEG on its own layer. Drop photos in a folder and
 run `node scripts/prepare-wallpapers.mjs <folder>` and choose:
 
-1. **Add** new photos while keeping existing wallpapers. Colliding keys receive a numeric suffix.
-2. **Replace** the collection with only the new photos, removing old assets and thumbnails.
-3. **Restore** only the ten original wallpapers, removing all custom assets and thumbnails.
+1. **Add** new personal photos while keeping the current collection. Colliding keys receive a
+   numeric suffix. If originals were hidden by Replace, they remain hidden.
+2. **Replace** the personal collection and show only the new photos. Original files stay untouched.
+3. **Restore** only the ten original wallpapers, removing all personal assets and thumbnails.
 
 You can also run the script without arguments to choose a mode and enter a photo folder.
 For non-interactive use, specify the mode explicitly:
@@ -189,11 +190,26 @@ node scripts/prepare-wallpapers.mjs <folder> --mode replace
 node scripts/prepare-wallpapers.mjs --mode restore
 ```
 
-Restore uses the bundled originals in `scripts/assets/original-wallpapers/` and needs no
-network access or image tools. Add/Replace need macOS `sips` and Google Chrome installed
+The tracked originals in `src/img/wallpapers/` and their catalog in `src/js/wallpapers.js`
+are never rewritten or deleted by this script. All generated photos, thumbnails, and the
+separate catalog are stored in **`.personal-wallpapers/`** at the repository root, which is gitignored.
+You can regenerate and personalize locally without committing personal images or catalog
+changes. Keep source photos in a separate folder outside the repo (or your own ignored folder).
+
+Both `npm run preview` and `npm run build` automatically include this private collection.
+Preview serves it at `personal-wallpapers/`; builds copy it to that same path inside a
+temporary package staging directory, without copying private files into `src/`.
+Without personalization, they create an empty private catalog and use the originals.
+Replace hides originals in the launcher rather than deleting them from the code or package;
+Restore clears only the private collection and needs no network access or image tools.
+The backup originals in `scripts/assets/original-wallpapers/` remain unchanged too.
+Gitignore prevents accidental normal staging, not distribution: **your personal images will
+be inside any locally built package you share**.
+
+Add/Replace need macOS `sips` and Google Chrome installed
 at its default location. They render the entire batch before changing existing files;
 an empty source folder or rendering failure leaves the collection unchanged. Replace/Restore
-remove files only inside `src/img/wallpapers/`; source photos and the bundled originals are
+remove files only inside `.personal-wallpapers/`; source photos and the originals are
 never removed. Existing saved wallpaper choices fall back to the first available photo if
 their old key is no longer present.
 

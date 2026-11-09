@@ -1,5 +1,5 @@
 // Turns large photos into TV-ready wallpapers: 1920x1080 cover crop with the readability scrim
-// baked in, saved as JPEG in src/img/wallpapers/, plus the catalog src/js/wallpapers.js.
+// baked in, saved privately in .personal-wallpapers/ with a separate catalog.
 // The scrim is part of the image so the TV never composites a gradient over a photo at runtime.
 //
 //   node scripts/prepare-wallpapers.mjs ~/Downloads/backgrounds [--mode add|replace]
@@ -10,11 +10,13 @@ import { tmpdir } from 'node:os';
 import { basename, extname, join, resolve, relative, isAbsolute, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createInterface } from 'node:readline/promises';
+import { catalogScript, ensurePersonalWallpapers, personalAssetPath, personalDir } from './personal-wallpapers.mjs';
 
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const root = resolve(import.meta.dirname, '..');
-const outDir = join(root, 'src/img/wallpapers');
-const catalogFile = join(root, 'src/js/wallpapers.js');
+const outDir = personalDir;
+const catalogFile = join(outDir, 'catalog.js');
+const originalsFile = join(root, 'src/js/wallpapers.js');
 const originalDir = join(root, 'scripts/assets/original-wallpapers');
 
 // Friendly names for known files (Unsplash file names: <photographer>-<id>-unsplash.jpg).
@@ -45,31 +47,46 @@ function credit(file) {
 }
 
 function entry(key, title, attribution) {
-    return { key, title, file: `img/wallpapers/${key}.jpg`,
-        thumb: `img/wallpapers/thumbs/${key}.jpg`, credit: attribution };
+    return { key, title, file: `personal-wallpapers/${key}.jpg`,
+        thumb: `personal-wallpapers/thumbs/${key}.jpg`, credit: attribution };
 }
 
 function readCatalog() {
+    if (!statSync(catalogFile, { throwIfNoEntry: false })) {
+        if (assetFiles(outDir).length) throw new Error('Personal wallpaper assets exist without a catalog.');
+        return { includeOriginals: true, photos: [] };
+    }
     const text = readFileSync(catalogFile, 'utf8');
-    const match = text.match(/window\.WALLPAPERS\s*=\s*(\[[\s\S]*\]);\s*$/);
-    if (!match) throw new Error('Cannot read the existing wallpaper catalog.');
-    const catalog = JSON.parse(match[1]);
+    const match = text.match(/window\.PERSONAL_WALLPAPERS = (\{[\s\S]*?\});\n/);
+    if (!match) throw new Error('Cannot read the personal wallpaper catalog.');
+    const config = JSON.parse(match[1]);
+    if (typeof config.includeOriginals !== 'boolean' || !Array.isArray(config.photos)) {
+        throw new Error('Invalid personal wallpaper configuration.');
+    }
+    const catalog = config.photos;
     const keys = new Set();
     for (const item of catalog) {
         if (!item || !/^[a-z0-9][a-z0-9-]*$/.test(item.key) || keys.has(item.key) ||
-            item.file !== `img/wallpapers/${item.key}.jpg` ||
-            item.thumb !== `img/wallpapers/thumbs/${item.key}.jpg` ||
+            item.file !== `personal-wallpapers/${item.key}.jpg` ||
+            item.thumb !== `personal-wallpapers/thumbs/${item.key}.jpg` ||
             typeof item.title !== 'string' || typeof item.credit !== 'string') {
             throw new Error('The existing wallpaper catalog contains an invalid or duplicate entry.');
         }
         keys.add(item.key);
         for (const file of [item.file, item.thumb]) {
-            if (!statSync(join(root, 'src', file), { throwIfNoEntry: false })?.isFile()) {
+            if (!statSync(personalAssetPath(file), { throwIfNoEntry: false })?.isFile()) {
                 throw new Error(`Existing wallpaper asset is missing: ${file}`);
             }
         }
     }
-    return catalog;
+    return config;
+}
+
+function originalKeys() {
+    const text = readFileSync(originalsFile, 'utf8');
+    const match = text.match(/window\.WALLPAPERS\s*=\s*(\[[\s\S]*\]);\s*$/);
+    if (!match) throw new Error('Cannot read the original wallpaper catalog.');
+    return JSON.parse(match[1]).map((item) => item.key);
 }
 
 function assetFiles(dir) {
@@ -111,9 +128,9 @@ async function options() {
         if (!mode) {
             if (!process.stdin.isTTY) throw new Error('Specify --mode add, replace, or restore when running non-interactively.');
             const choice = await rl.question(
-                '1. Add new photos and keep existing wallpapers\n' +
-                '2. Replace all wallpapers with new photos\n' +
-                '3. Restore only the original wallpapers\nChoice (1/2/3): ');
+                '1. Add personal photos and keep the current collection\n' +
+                '2. Show only new personal photos (originals stay untouched)\n' +
+                '3. Clear personal photos and show only originals\nChoice (1/2/3): ');
             mode = { '1': 'add', '2': 'replace', '3': 'restore' }[choice.trim()];
         }
         if (!['add', 'replace', 'restore'].includes(mode)) throw new Error('Choose add, replace, or restore.');
@@ -126,7 +143,8 @@ async function options() {
         if (!statSync(sourceDir, { throwIfNoEntry: false })?.isDirectory()) {
             throw new Error(`Photo folder does not exist: ${sourceDir}`);
         }
-        if (inside(outDir, sourceDir) || inside(originalDir, sourceDir)) {
+        if (inside(outDir, sourceDir) || inside(originalDir, sourceDir) ||
+            inside(join(root, 'src/img/wallpapers'), sourceDir)) {
             throw new Error('Use original photos, not the generated or bundled wallpaper folders.');
         }
         return { mode, sourceDir };
@@ -137,9 +155,11 @@ async function options() {
 
 async function main() {
     const { mode, sourceDir } = await options();
-    const catalog = mode === 'add' ? readCatalog() : [];
+    ensurePersonalWallpapers();
+    const config = mode === 'add' ? readCatalog() : { includeOriginals: mode === 'restore', photos: [] };
+    const catalog = config.photos;
     const existingFiles = assetFiles(outDir);
-    const usedKeys = new Set(catalog.map((item) => item.key));
+    const usedKeys = new Set([...originalKeys(), ...catalog.map((item) => item.key)]);
     if (mode === 'add') {
         for (const file of existingFiles) usedKeys.add(basename(file, extname(file)));
     }
@@ -152,14 +172,7 @@ async function main() {
     const thumbDir = join(staged, 'thumbs');
     mkdirSync(thumbDir, { recursive: true });
     try {
-        if (mode === 'restore') {
-            for (const [filename, info] of Object.entries(KNOWN)) {
-                for (const path of [`${info.key}.jpg`, `thumbs/${info.key}.jpg`]) {
-                    copyFileSync(join(originalDir, path), join(staged, path));
-                }
-                catalog.push(entry(info.key, info.title, credit(filename)));
-            }
-        } else {
+        if (mode !== 'restore') {
             for (const file of photos) {
                 const dimensions = execFileSync('sips',
                     ['-g', 'pixelWidth', '-g', 'pixelHeight', join(sourceDir, file)], { encoding: 'utf8', stdio: 'pipe' });
@@ -194,18 +207,17 @@ async function main() {
         for (const file of assetFiles(staged)) {
             copyFileSync(file, join(outDir, relative(staged, file)));
         }
-        writeFileSync(catalogFile,
-            '/* Generated by scripts/prepare-wallpapers.mjs. Photo credits are listed per entry. */\n' +
-            'window.WALLPAPERS = ' + JSON.stringify(catalog, null, 4) + ';\n');
+        writeFileSync(catalogFile, catalogScript(catalog, config.includeOriginals));
         if (mode !== 'add') {
             const retained = new Set(catalog.flatMap((item) =>
-                [join(root, 'src', item.file), join(root, 'src', item.thumb)]));
+                [personalAssetPath(item.file), personalAssetPath(item.thumb)]));
+            retained.add(catalogFile);
             for (const file of existingFiles) {
                 if (!retained.has(file)) rmSync(file);
             }
             removeEmptyFolders(outDir);
         }
-        console.log(`${mode}: ${catalog.length} wallpapers in src/js/wallpapers.js`);
+        console.log(`${mode}: ${catalog.length} personal wallpapers; originals ${config.includeOriginals ? 'shown' : 'hidden'}.`);
     } finally {
         rmSync(tmp, { recursive: true, force: true });
     }
